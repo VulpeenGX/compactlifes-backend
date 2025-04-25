@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Django
+*.log
+*.pot
+*.pyc
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+
+# Si usas pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Entornos virtuales
+venv/
+ENV/
+env/
+.env
+
+# IDEs y editores
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Archivos de migración (opcional, depende de tu flujo de trabajo)
+# */migrations/*.py
+# !*/migrations/__init__.py
+
+# Archivos estáticos compilados
+staticfiles/
+
+# Archivos de configuración local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
