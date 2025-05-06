@@ -1,5 +1,6 @@
 from rest_framework.routers import DefaultRouter
 from django.urls import path, include
+from rest_framework_simplejwt.views import TokenRefreshView
 from .views import (UsuarioViewSet, CategoriaViewSet, ProductoViewSet, ServicioViewSet, 
                     WishlistViewSet, CarritoViewSet, ItemCarritoViewSet, PedidoViewSet, 
                     DetallePedidoViewSet)
@@ -17,4 +18,5 @@ router.register(r'detalles-pedido', DetallePedidoViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.auth.hashers import make_password, check_password
+from decimal import Decimal
 
 class Usuario(models.Model):
     nombre = models.CharField(max_length=100, null=False, blank=False)
@@ -8,9 +10,20 @@ class Usuario(models.Model):
     direccion = models.TextField(null=False, blank=False)
     telefono = models.CharField(max_length=9, null=False, blank=False)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.nombre} {self.apellido}"
+    
+    def save(self, *args, **kwargs):
+        # Hash de la contraseña solo si no está hasheada
+        if self.contraseña and not self.contraseña.startswith('pbkdf2_sha256$'):
+            self.contraseña = make_password(self.contraseña)
+        super().save(*args, **kwargs)
+    
+    def check_password(self, raw_password):
+        """Verifica si la contraseña sin procesar coincide con la contraseña hasheada."""
+        return check_password(raw_password, self.contraseña)
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=100, null=False, blank=False)

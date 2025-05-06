@@ -1,19 +1,85 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
 from .models import Usuario, Categoria, Producto, Servicio, Wishlist, Carrito, ItemCarrito, Pedido, DetallePedido
 from .serializers import (UsuarioSerializer, CategoriaSerializer, ProductoSerializer, ServicioSerializer, 
                           WishlistSerializer, CarritoSerializer, ItemCarritoSerializer, PedidoSerializer, 
-                          DetallePedidoSerializer)
+                          DetallePedidoSerializer, RegistroSerializer, LoginSerializer)
 
 class UsuarioViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
+    
+    @action(detail=False, methods=['post'], url_path='registro')
+    def registro(self, request):
+        """Registrar un nuevo usuario"""
+        serializer = RegistroSerializer(data=request.data)
+        if serializer.is_valid():
+            usuario = serializer.save()
+            
+            # Generar tokens JWT
+            refresh = RefreshToken.for_user(usuario)
+            
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+                'usuario': UsuarioSerializer(usuario).data
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=False, methods=['post'], url_path='login')
+    def login(self, request):
+        """Login de usuario"""
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+            contraseña = serializer.validated_data['contraseña']
+            
+            try:
+                usuario = Usuario.objects.get(email=email)
+                if usuario.check_password(contraseña):
+                    # Generar tokens JWT
+                    refresh = RefreshToken.for_user(usuario)
+                    
+                    return Response({
+                        'refresh': str(refresh),
+                        'access': str(refresh.access_token),
+                        'usuario': UsuarioSerializer(usuario).data
+                    })
+                else:
+                    return Response({'error': 'Credenciales inválidas'}, status=status.HTTP_401_UNAUTHORIZED)
+            except Usuario.DoesNotExist:
+                return Response({'error': 'Credenciales inválidas'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CategoriaViewSet(viewsets.ModelViewSet):
     queryset = Categoria.objects.all()
     serializer_class = CategoriaSerializer
-
+    
+    def get_queryset(self):
+        """Permite filtrar categorías por nombre."""
+        queryset = Categoria.objects.all()
+        nombre = self.request.query_params.get('nombre', None)
+        if nombre:
+            queryset = queryset.filter(nombre__icontains=nombre)
+        return queryset
+    
+    @action(detail=True, methods=['get'])
+    def productos(self, request, pk=None):
+        """Obtener todos los productos de una categoría específica."""
+        categoria = self.get_object()
+        productos = Producto.objects.filter(categoria=categoria)
+        serializer = ProductoSerializer(productos, many=True, context={'request': request})
+        return Response(serializer.data)
+        
+    @action(detail=False, methods=['get'])
+    def con_productos(self, request):
+        """Obtener solo categorías que tienen productos asociados."""
+        categorias_con_productos = Categoria.objects.filter(productos__isnull=False).distinct()
+        serializer = self.get_serializer(categorias_con_productos, many=True)
+        return Response(serializer.data)
 
 class ProductoViewSet(viewsets.ModelViewSet):
     queryset = Producto.objects.all()

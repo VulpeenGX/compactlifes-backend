@@ -1,11 +1,38 @@
 from rest_framework import serializers
 from .models import Usuario, Categoria, Producto, Servicio, Wishlist, Carrito, ItemCarrito, Pedido, DetallePedido
 from decimal import Decimal
+from django.contrib.auth.hashers import make_password
+
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
         fields = '__all__'
         extra_kwargs = {'contraseña': {'write_only': True}}
+
+class RegistroSerializer(serializers.ModelSerializer):
+    confirmar_contraseña = serializers.CharField(write_only=True, required=True)
+    
+    class Meta:
+        model = Usuario
+        fields = ['nombre', 'apellido', 'email', 'contraseña', 'confirmar_contraseña', 'direccion', 'telefono']
+        extra_kwargs = {
+            'contraseña': {'write_only': True},
+        }
+    
+    def validate(self, data):
+        # Verificar que las contraseñas coincidan
+        if data.get('contraseña') != data.pop('confirmar_contraseña'):
+            raise serializers.ValidationError({"error": "Las contraseñas no coinciden"})
+        return data
+    
+    def create(self, validated_data):
+        # Crear el usuario con la contraseña hasheada
+        usuario = Usuario.objects.create(**validated_data)
+        return usuario
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    contraseña = serializers.CharField(required=True, write_only=True)
 
 class CategoriaSerializer(serializers.ModelSerializer):
     class Meta:
