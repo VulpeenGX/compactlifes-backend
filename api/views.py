@@ -3,10 +3,10 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import Usuario, Categoria, Producto, Servicio, Wishlist, Carrito, ItemCarrito, Pedido, DetallePedido
+from .models import Usuario, Categoria, Producto, Servicio, Wishlist, Carrito, ItemCarrito, Pedido, DetallePedido, Estancia
 from .serializers import (UsuarioSerializer, CategoriaSerializer, ProductoSerializer, ServicioSerializer, 
                           WishlistSerializer, CarritoSerializer, ItemCarritoSerializer, PedidoSerializer, 
-                          DetallePedidoSerializer, RegistroSerializer, LoginSerializer)
+                          DetallePedidoSerializer, RegistroSerializer, LoginSerializer, EstanciaSerializer)
 
 class UsuarioViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
@@ -79,6 +79,26 @@ class CategoriaViewSet(viewsets.ModelViewSet):
         """Obtener solo categorías que tienen productos asociados."""
         categorias_con_productos = Categoria.objects.filter(productos__isnull=False).distinct()
         serializer = self.get_serializer(categorias_con_productos, many=True)
+        return Response(serializer.data)
+
+class EstanciaViewSet(viewsets.ModelViewSet):
+    queryset = Estancia.objects.all()
+    serializer_class = EstanciaSerializer
+    
+    def get_queryset(self):
+        """Permite filtrar estancias por nombre."""
+        queryset = Estancia.objects.all()
+        nombre = self.request.query_params.get('nombre', None)
+        if nombre:
+            queryset = queryset.filter(nombre__icontains=nombre)
+        return queryset
+    
+    @action(detail=True, methods=['get'])
+    def productos(self, request, pk=None):
+        """Obtener todos los productos de una estancia específica."""
+        estancia = self.get_object()
+        productos = Producto.objects.filter(estancia=estancia)
+        serializer = ProductoSerializer(productos, many=True, context={'request': request})
         return Response(serializer.data)
 
 class ProductoViewSet(viewsets.ModelViewSet):

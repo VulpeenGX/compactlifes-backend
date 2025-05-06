@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Usuario, Categoria, Producto, Servicio, Wishlist, Carrito, ItemCarrito, Pedido, DetallePedido
+from .models import Usuario, Categoria, Producto, Servicio, Wishlist, Carrito, ItemCarrito, Pedido, DetallePedido, Estancia
 from decimal import Decimal
 from django.contrib.auth.hashers import make_password
 
@@ -39,15 +39,22 @@ class CategoriaSerializer(serializers.ModelSerializer):
         model = Categoria
         fields = '__all__'
 
+class EstanciaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Estancia
+        fields = '__all__'
+
 class ProductoSerializer(serializers.ModelSerializer):
     precio_con_descuento = serializers.SerializerMethodField()
     imagen_url = serializers.SerializerMethodField()  # Campo adicional para compatibilidad
     categoria_nombre = serializers.ReadOnlyField(source='categoria.nombre')
+    estancia_nombre = serializers.ReadOnlyField(source='estancia.nombre')
 
     class Meta:
         model = Producto
         fields = ['id', 'nombre', 'descripcion', 'precio', 'descuento', 
-                  'precio_con_descuento', 'stock', 'categoria', 'categoria_nombre', 'imagen', 
+                  'precio_con_descuento', 'stock', 'categoria', 'categoria_nombre', 
+                  'estancia', 'estancia_nombre', 'imagen', 
                   'imagen_url', 'colores', 'materiales', 'peso', 'fecha_creacion']
         extra_kwargs = {
             'imagen': {'required': True},

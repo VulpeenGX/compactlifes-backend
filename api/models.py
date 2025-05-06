@@ -32,6 +32,13 @@ class Categoria(models.Model):
     def __str__(self):
         return self.nombre
 
+class Estancia(models.Model):
+    nombre = models.CharField(max_length=100, null=False, blank=False)
+    descripcion = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return self.nombre
+
 class Producto(models.Model):
     nombre = models.CharField(max_length=100, null=False, blank=False)
     descripcion = models.TextField(null=False, blank=False)
@@ -39,6 +46,7 @@ class Producto(models.Model):
     descuento = models.PositiveIntegerField(default=0)  
     stock = models.BooleanField(default=True)
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, related_name='productos')
+    estancia = models.ForeignKey(Estancia, on_delete=models.CASCADE, related_name='productos', null=True)
     imagen = models.ImageField(upload_to='productos/', null=False, blank=False)
     colores = models.JSONField(default=list)
     materiales = models.JSONField(default=list)

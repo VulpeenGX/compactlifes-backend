@@ -3,13 +3,14 @@ from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView
 from .views import (UsuarioViewSet, CategoriaViewSet, ProductoViewSet, ServicioViewSet, 
                     WishlistViewSet, CarritoViewSet, ItemCarritoViewSet, PedidoViewSet, 
-                    DetallePedidoViewSet)
+                    DetallePedidoViewSet, EstanciaViewSet)
 
 router = DefaultRouter()
 router.register(r'usuarios', UsuarioViewSet)
 router.register(r'categorias', CategoriaViewSet)
 router.register(r'productos', ProductoViewSet)
 router.register(r'servicios', ServicioViewSet)
+router.register(r'estancias', EstanciaViewSet)
 router.register(r'wishlist', WishlistViewSet)
 router.register(r'carritos', CarritoViewSet)
 router.register(r'items-carrito', ItemCarritoViewSet)
