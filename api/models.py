@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.hashers import make_password, check_password
 from decimal import Decimal
+import json  # Añadir esta importación
 
 class Usuario(models.Model):
     nombre = models.CharField(max_length=100, null=False, blank=False)
@@ -60,6 +61,40 @@ class Producto(models.Model):
     def precio_con_descuento(self):
         """Calcula el precio final aplicando el descuento."""
         return self.precio * (Decimal('1') - Decimal(self.descuento) / Decimal('100'))
+    
+    @property
+    def colores_formateados(self):
+        try:
+            # No necesitamos json.loads porque colores ya es un objeto Python
+            data = self.colores
+            if isinstance(data, list):
+                return ", ".join(
+                    item["color"] if isinstance(item, dict) and "color" in item else str(item)
+                    for item in data
+                )
+            elif isinstance(data, dict):
+                return ", ".join(str(v) for v in data.values())
+            else:
+                return str(data)
+        except Exception:
+            return str(self.colores)
+        
+    @property
+    def materiales_formateados(self):
+        try:
+            # No necesitamos json.loads porque materiales ya es un objeto Python
+            data = self.materiales
+            if isinstance(data, list):
+                return ", ".join(
+                    item["material"] if isinstance(item, dict) and "material" in item else str(item)
+                    for item in data
+                )
+            elif isinstance(data, dict):
+                return ", ".join(str(v) for v in data.values())
+            else:
+                return str(data)
+        except Exception:
+            return str(self.materiales)
 
 class Servicio(models.Model):
     nombre = models.CharField(max_length=100, null=False, blank=False)

@@ -110,6 +110,14 @@ class ProductoViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context()
         return context
     
+    def get_queryset(self):
+        """Permite filtrar productos por nombre y asegura que se incluyan los datos relacionados."""
+        queryset = Producto.objects.all().select_related('categoria', 'estancia')
+        nombre = self.request.query_params.get('nombre', None)
+        if nombre:
+            queryset = queryset.filter(nombre__icontains=nombre)
+        return queryset
+    
     def create(self, request, *args, **kwargs):
         """Crea un nuevo producto con validación mejorada."""
         # Verificar si se ha proporcionado una imagen
@@ -153,7 +161,27 @@ class ProductoViewSet(viewsets.ModelViewSet):
         productos = Producto.objects.filter(categoria_id=categoria_id)
         serializer = self.get_serializer(productos, many=True)
         return Response(serializer.data)
-
+    
+    @action(detail=False, methods=['get'], url_path='por-estancia/(?P<estancia_id>[^/.]+)')
+    def por_estancia(self, request, estancia_id=None):
+        """Obtener productos por estancia"""
+        productos = Producto.objects.filter(estancia_id=estancia_id)
+        serializer = self.get_serializer(productos, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'], url_path='buscar/(?P<texto>[^/.]+)')
+    def buscar(self, request, texto=None):
+        """Buscar productos por nombre o descripción"""
+        productos = Producto.objects.filter(nombre__icontains=texto) | Producto.objects.filter(descripcion__icontains=texto)
+        serializer = self.get_serializer(productos, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'], url_path='destacados')
+    def destacados(self, request):
+        """Obtener productos destacados (los más recientes)"""
+        productos_destacados = Producto.objects.all().order_by('-fecha_creacion')[:8]
+        serializer = self.get_serializer(productos_destacados, many=True)
+        return Response(serializer.data)
 
 class ServicioViewSet(viewsets.ModelViewSet):
     queryset = Servicio.objects.all()

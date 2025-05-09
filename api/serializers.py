@@ -46,38 +46,74 @@ class EstanciaSerializer(serializers.ModelSerializer):
 
 class ProductoSerializer(serializers.ModelSerializer):
     precio_con_descuento = serializers.SerializerMethodField()
-    imagen_url = serializers.SerializerMethodField()  # Campo adicional para compatibilidad
+    imagen_url = serializers.SerializerMethodField()
     categoria_nombre = serializers.ReadOnlyField(source='categoria.nombre')
     estancia_nombre = serializers.ReadOnlyField(source='estancia.nombre')
+    categoria_data = CategoriaSerializer(source='categoria', read_only=True)
+    estancia_data = EstanciaSerializer(source='estancia', read_only=True)
+    colores_formateados = serializers.SerializerMethodField()
+    materiales_formateados = serializers.SerializerMethodField()
 
     class Meta:
         model = Producto
-        fields = ['id', 'nombre', 'descripcion', 'precio', 'descuento', 
-                  'precio_con_descuento', 'stock', 'categoria', 'categoria_nombre', 
-                  'estancia', 'estancia_nombre', 'imagen', 
-                  'imagen_url', 'colores', 'materiales', 'peso', 'fecha_creacion']
+        fields = [
+            'id', 'nombre', 'descripcion', 'precio', 'descuento', 
+            'precio_con_descuento', 'stock', 'categoria', 'categoria_nombre', 
+            'estancia', 'estancia_nombre', 'imagen', 'imagen_url', 
+            'colores', 'materiales', 'peso', 'fecha_creacion',
+            'categoria_data', 'estancia_data',
+            'colores_formateados', 'materiales_formateados'
+        ]
         extra_kwargs = {
             'imagen': {'required': True},
         }
 
     def get_precio_con_descuento(self, obj):
-        """Calcula el precio con descuento directamente en el serializer."""
         return obj.precio * (Decimal('1') - Decimal(obj.descuento) / Decimal('100'))
-        
+
     def get_imagen_url(self, obj):
-        """Devuelve la URL completa de la imagen."""
         if obj.imagen:
             request = self.context.get('request')
             if request:
                 return request.build_absolute_uri(obj.imagen.url)
             return obj.imagen.url
         return None
-        
-    def validate_colores(self, value):
-        """Valida que los colores sean una lista."""
-        if not isinstance(value, list):
-            raise serializers.ValidationError("Los colores deben ser una lista")
-        return value
+
+    def get_colores_formateados(self, obj):
+        try:
+            data = obj.colores
+            if isinstance(data, str):
+                import json
+                data = json.loads(data)
+            if isinstance(data, list):
+                return ", ".join(
+                    item["color"] if isinstance(item, dict) and "color" in item else str(item)
+                    for item in data
+                )
+            elif isinstance(data, dict):
+                return ", ".join(str(v) for v in data.values())
+            else:
+                return str(data)
+        except Exception:
+            return str(obj.colores)
+
+    def get_materiales_formateados(self, obj):
+        try:
+            data = obj.materiales
+            if isinstance(data, str):
+                import json
+                data = json.loads(data)
+            if isinstance(data, list):
+                return ", ".join(
+                    item["material"] if isinstance(item, dict) and "material" in item else str(item)
+                    for item in data
+                )
+            elif isinstance(data, dict):
+                return ", ".join(str(v) for v in data.values())
+            else:
+                return str(data)
+        except Exception:
+            return str(obj.materiales)
         
     def validate_materiales(self, value):
         """Valida que los materiales sean una lista."""
