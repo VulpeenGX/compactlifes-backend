@@ -6,7 +6,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import Usuario, Categoria, Producto, Servicio, Wishlist, Carrito, ItemCarrito, Pedido, DetallePedido, Estancia
 from .serializers import (UsuarioSerializer, CategoriaSerializer, ProductoSerializer, ServicioSerializer, 
                           WishlistSerializer, CarritoSerializer, ItemCarritoSerializer, PedidoSerializer, 
-                          DetallePedidoSerializer, RegistroSerializer, LoginSerializer, EstanciaSerializer)
+                          DetallePedidoSerializer, RegistroSerializer, LoginSerializer, EstanciaSerializer,
+                          ActualizarUsuarioSerializer)
 
 class UsuarioViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
@@ -52,6 +53,20 @@ class UsuarioViewSet(viewsets.ModelViewSet):
                     return Response({'error': 'Credenciales inválidas'}, status=status.HTTP_401_UNAUTHORIZED)
             except Usuario.DoesNotExist:
                 return Response({'error': 'Credenciales inválidas'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    @action(detail=True, methods=['put'], url_path='actualizar')
+    def actualizar_usuario(self, request, pk=None):
+        """Actualizar datos del usuario"""
+        usuario = self.get_object()
+        serializer = ActualizarUsuarioSerializer(usuario, data=request.data, partial=True)
+        
+        if serializer.is_valid():
+            usuario_actualizado = serializer.save()
+            return Response({
+                'usuario': UsuarioSerializer(usuario_actualizado).data,
+                'mensaje': 'Datos actualizados correctamente'
+            })
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CategoriaViewSet(viewsets.ModelViewSet):

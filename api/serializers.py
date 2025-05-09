@@ -30,6 +30,19 @@ class RegistroSerializer(serializers.ModelSerializer):
         usuario = Usuario.objects.create(**validated_data)
         return usuario
 
+class ActualizarUsuarioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Usuario
+        fields = ['nombre', 'apellido', 'direccion', 'telefono']
+        
+    def update(self, instance, validated_data):
+        instance.nombre = validated_data.get('nombre', instance.nombre)
+        instance.apellido = validated_data.get('apellido', instance.apellido)
+        instance.direccion = validated_data.get('direccion', instance.direccion)
+        instance.telefono = validated_data.get('telefono', instance.telefono)
+        instance.save()
+        return instance
+
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
     contraseña = serializers.CharField(required=True, write_only=True)
