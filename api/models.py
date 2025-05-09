@@ -65,7 +65,6 @@ class Producto(models.Model):
     @property
     def colores_formateados(self):
         try:
-            # No necesitamos json.loads porque colores ya es un objeto Python
             data = self.colores
             if isinstance(data, list):
                 return ", ".join(
@@ -82,7 +81,6 @@ class Producto(models.Model):
     @property
     def materiales_formateados(self):
         try:
-            # No necesitamos json.loads porque materiales ya es un objeto Python
             data = self.materiales
             if isinstance(data, list):
                 return ", ".join(

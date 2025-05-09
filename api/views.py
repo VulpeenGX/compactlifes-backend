@@ -41,7 +41,7 @@ class UsuarioViewSet(viewsets.ModelViewSet):
             try:
                 usuario = Usuario.objects.get(email=email)
                 if usuario.check_password(contraseña):
-                    # Generar tokens JWT
+                    #tokens JWT
                     refresh = RefreshToken.for_user(usuario)
                     
                     return Response({
