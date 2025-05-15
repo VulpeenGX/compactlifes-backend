@@ -48,7 +48,7 @@ class Producto(models.Model):
     stock = models.BooleanField(default=True)
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, related_name='productos')
     estancia = models.ForeignKey(Estancia, on_delete=models.CASCADE, related_name='productos', null=True)
-    imagen = models.ImageField(upload_to='productos/', null=False, blank=False)
+    imagen = models.URLField(max_length=500)
     colores = models.JSONField(default=list)
     materiales = models.JSONField(default=list)
     peso = models.FloatField(null=False, blank=False)

@@ -86,10 +86,7 @@ class ProductoSerializer(serializers.ModelSerializer):
 
     def get_imagen_url(self, obj):
         if obj.imagen:
-            request = self.context.get('request')
-            if request:
-                return request.build_absolute_uri(obj.imagen.url)
-            return obj.imagen.url
+            return obj.imagen
         return None
 
     def get_colores_formateados(self, obj):

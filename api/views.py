@@ -135,10 +135,10 @@ class ProductoViewSet(viewsets.ModelViewSet):
     
     def create(self, request, *args, **kwargs):
         """Crea un nuevo producto con validación mejorada."""
-        # Verificar si se ha proporcionado una imagen
-        if 'imagen' not in request.FILES:
+        # Verificar si se ha proporcionado una URL de imagen
+        if 'imagen' not in request.data or not request.data.get('imagen'):
             return Response(
-                {"error": "Se requiere una imagen para el producto"},
+                {"error": "Se requiere una URL de imagen para el producto"},
                 status=status.HTTP_400_BAD_REQUEST
             )
             
@@ -148,10 +148,10 @@ class ProductoViewSet(viewsets.ModelViewSet):
         """Actualiza un producto existente."""
         instance = self.get_object()
         
-        # Si no se proporciona una nueva imagen, mantener la existente
-        if 'imagen' not in request.FILES and instance.imagen:
+        # Si no se proporciona una nueva URL de imagen, mantener la existente
+        if 'imagen' not in request.data and instance.imagen:
             request.data._mutable = True
-            request.data.pop('imagen', None)
+            request.data['imagen'] = instance.imagen
             request.data._mutable = False
             
         return super().update(request, *args, **kwargs)
