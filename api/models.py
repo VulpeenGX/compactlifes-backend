@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.hashers import make_password, check_password
 from decimal import Decimal
-import json  # Añadir esta importación
+import json
 
 class Usuario(models.Model):
     nombre = models.CharField(max_length=100, null=False, blank=False)
@@ -17,7 +17,6 @@ class Usuario(models.Model):
         return f"{self.nombre} {self.apellido}"
     
     def save(self, *args, **kwargs):
-        # Hash de la contraseña solo si no está hasheada
         if self.contraseña and not self.contraseña.startswith('pbkdf2_sha256$'):
             self.contraseña = make_password(self.contraseña)
         super().save(*args, **kwargs)

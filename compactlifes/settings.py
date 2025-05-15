@@ -41,14 +41,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
-    'corsheaders',  # Añadir esta línea
+    'corsheaders',  
     'compactlifes',
     'api',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Añadir esta línea para archivos estáticos
+    'whitenoise.middleware.WhiteNoiseMiddleware', 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -178,7 +178,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
     "http://localhost:3000",
     "http://127.0.0.1:5500",
-    "https://compactlifes.netlify.app",  # Añade aquí el dominio de tu frontend en Netlify
+    "https://compactlifes.netlify.app",  
 ]
 
 CORS_ALLOWED_ORIGIN_REGEXES = [

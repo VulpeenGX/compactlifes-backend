@@ -135,7 +135,6 @@ class ProductoViewSet(viewsets.ModelViewSet):
     
     def create(self, request, *args, **kwargs):
         """Crea un nuevo producto con validación mejorada."""
-        # Verificar si se ha proporcionado una URL de imagen
         if 'imagen' not in request.data or not request.data.get('imagen'):
             return Response(
                 {"error": "Se requiere una URL de imagen para el producto"},

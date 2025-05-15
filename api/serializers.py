@@ -20,13 +20,11 @@ class RegistroSerializer(serializers.ModelSerializer):
         }
     
     def validate(self, data):
-        # Verificar que las contraseñas coincidan
         if data.get('contraseña') != data.pop('confirmar_contraseña'):
             raise serializers.ValidationError({"error": "Las contraseñas no coinciden"})
         return data
     
     def create(self, validated_data):
-        # Crear el usuario con la contraseña hasheada
         usuario = Usuario.objects.create(**validated_data)
         return usuario
 
